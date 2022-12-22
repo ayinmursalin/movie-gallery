@@ -7,7 +7,6 @@ import com.creativijaya.moviegallery.domain.usecases.GetGenreListUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -37,19 +36,15 @@ class HomeViewModel(
     }
 
     private fun getGenreList() {
-        _uiState.update { State.OnLoading }
+        _uiState.value = State.OnLoading
 
         viewModelScope.launch {
             try {
                 val result = getGenreListUseCase()
 
-                _uiState.update {
-                    State.ShowGenreList(result)
-                }
+                _uiState.value = State.ShowGenreList(result)
             } catch (e: Exception) {
-                _uiState.update {
-                    State.OnError(e)
-                }
+                _uiState.value = State.OnError(e)
             }
         }
     }

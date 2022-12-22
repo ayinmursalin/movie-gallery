@@ -11,6 +11,8 @@ import com.creativijaya.moviegallery.databinding.FragmentHomeBinding
 import com.creativijaya.moviegallery.databinding.ItemGenreBinding
 import com.creativijaya.moviegallery.domain.models.GenreDto
 import com.creativijaya.moviegallery.presentation.base.BaseFragment
+import com.creativijaya.moviegallery.presentation.main.HomeViewModel.Event
+import com.creativijaya.moviegallery.presentation.main.HomeViewModel.State
 import com.creativijaya.moviegallery.utils.GenericRecyclerViewAdapter
 import com.creativijaya.moviegallery.utils.toGone
 import com.creativijaya.moviegallery.utils.toVisible
@@ -36,7 +38,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         setupLayout()
         subscribeState()
 
-        viewModel.onEvent(HomeViewModel.Event.LoadGenreList)
+        viewModel.onEvent(Event.LoadGenreList)
     }
 
     private fun setupLayout() {
@@ -53,24 +55,31 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { uiState ->
                     when (uiState) {
-                        HomeViewModel.State.Uninitialized -> Unit
-                        HomeViewModel.State.OnLoading -> with(binding) {
-                            rvGenres.toGone()
-                            cpiHome.toVisible()
-                        }
-                        is HomeViewModel.State.ShowGenreList -> with(binding) {
-                            cpiHome.toGone()
-                            rvGenres.toVisible()
-
-                            genreAdapter.setData(uiState.genreList)
-                        }
-                        is HomeViewModel.State.OnError -> {
-                            handleError(uiState.error)
-                        }
+                        State.Uninitialized -> Unit
+                        State.OnLoading -> showLoading()
+                        is State.ShowGenreList -> showGenreList(uiState.genreList)
+                        is State.OnError -> handleError(uiState.error)
                     }
                 }
             }
         }
+    }
+
+    private fun showLoading() = with(binding) {
+        rvGenres.toGone()
+        cpiHome.toVisible()
+    }
+
+    private fun showGenreList(genreList: List<GenreDto>) = with(binding) {
+        cpiHome.toGone()
+        rvGenres.toVisible()
+
+        genreAdapter.setData(genreList)
+    }
+
+    override fun handleError(throwable: Throwable) {
+        binding.cpiHome.toGone()
+        super.handleError(throwable)
     }
 
     private fun onBindGenreItem(

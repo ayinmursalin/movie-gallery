@@ -17,7 +17,7 @@ open class BaseFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes) {
         Toast.makeText(requireContext(), message, duration).show()
     }
 
-    protected fun handleError(throwable: Throwable) {
+    open fun handleError(throwable: Throwable) {
         when (throwable) {
             is BadRequestException -> {
                 showToast(throwable.errorMessage.orEmpty())
