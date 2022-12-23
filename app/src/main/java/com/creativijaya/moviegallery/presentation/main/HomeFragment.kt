@@ -1,7 +1,6 @@
 package com.creativijaya.moviegallery.presentation.main
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -77,7 +76,6 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     }
 
     private fun handleState(uiState: HomeUiState) {
-        Log.d("DEBUG_MAIN", "state: $uiState")
         when {
             uiState.isLoading -> showLoading(uiState.currentPage)
             uiState.isSuccess -> showMovieList(uiState.currentPage, uiState.movieList)
@@ -96,6 +94,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             rvMovies.toGone()
             cpiHome.toVisible()
         } else {
+            endlessScrollListener.showLoading()
             movieAdapter.showLoading()
         }
     }
@@ -107,6 +106,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
             movieAdapter.setData(movieList)
         } else {
+            endlessScrollListener.hideLoading()
             movieAdapter.hideLoading()
             movieAdapter.addData(movieList)
         }
@@ -118,6 +118,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         if (page == 1) {
             binding.cpiHome.toGone()
         } else {
+            endlessScrollListener.hideLoading()
             movieAdapter.hideLoading()
         }
     }

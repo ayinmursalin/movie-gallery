@@ -68,6 +68,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.google.code.gson:gson:$gson_version"
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     implementation "com.github.chuckerteam.chucker:library:3.5.2"
 
     // Glide (Network Image Loader)
@@ -75,6 +76,8 @@ dependencies {
 
     // Test
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:4.1.0'
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
 }
