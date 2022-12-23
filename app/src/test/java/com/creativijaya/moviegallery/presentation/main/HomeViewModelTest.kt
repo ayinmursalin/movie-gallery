@@ -60,7 +60,7 @@ class HomeViewModelTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun onEvent_OnGetPopularMovieList_SuccessPopulateMovieList() = runTest {
+    fun onGetPopularMovieList_SuccessPopulateMovieList() = runTest {
         movieService = mock {
             onBlocking {
                 getPopularMovies(1)
@@ -75,22 +75,23 @@ class HomeViewModelTest {
 
         viewModel.onEvent(HomeViewModel.Event.OnGetPopularMovieList)
 
-        val expectedMovieList = listOf(
-            MovieDto(id = 1, title = "Title 1"),
-            MovieDto(id = 2, title = "Title 2")
-        )
-
         // asset - show loading
         Assert.assertEquals(true, viewModel.uiState.value.isLoading)
 
         // assert - success get movie list
         advanceUntilIdle()
-        Assert.assertEquals(expectedMovieList, viewModel.uiState.value.movieList)
+        Assert.assertEquals(
+            listOf(
+                MovieDto(id = 1, title = "Title 1"),
+                MovieDto(id = 2, title = "Title 2")
+            ),
+            viewModel.uiState.value.movieList
+        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun onEvent_OnGetPopularMovieList_ApiKeyInvalid() = runTest {
+    fun onGetPopularMovieList_ApiKeyInvalid() = runTest {
         movieService = mock {
             onBlocking {
                 getPopularMovies(1)
