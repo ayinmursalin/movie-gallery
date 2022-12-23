@@ -13,7 +13,7 @@ class GenericRecyclerViewAdapter<T : Any>(
     @LayoutRes private val itemLayoutRes: Int = 0,
     @LayoutRes private val loadingLayoutRes: Int = R.layout.common_item_loading,
     private val onBind: ((T, View) -> ViewBinding)? = null,
-    private val onBindWithPosition: ((T, View, Int) -> ViewBinding)? = null,
+    private val onBindLoading: ((View) -> ViewBinding)? = null,
     private val onClickListener: (T, Int) -> Unit = { _, _ -> }
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -51,6 +51,8 @@ class GenericRecyclerViewAdapter<T : Any>(
             items[position]?.let {
                 (holder as? GenericRecyclerViewAdapter<T>.ItemViewHolder)?.bind(it)
             }
+        } else if (holder.itemViewType == TYPE_LOADING) {
+            (holder as? GenericRecyclerViewAdapter<T>.LoadingViewHolder)?.bind()
         }
     }
 
@@ -64,6 +66,13 @@ class GenericRecyclerViewAdapter<T : Any>(
         items.addAll(newItems)
 
         result.dispatchUpdatesTo(this)
+    }
+
+    fun addData(newItems: List<T?>) {
+        val size = items.size
+        items.addAll(newItems)
+
+        notifyItemRangeInserted(size, newItems.size)
     }
 
     fun showLoading() {
@@ -81,14 +90,14 @@ class GenericRecyclerViewAdapter<T : Any>(
             onBind?.invoke(data, itemView)?.root?.setOnClickListener {
                 onClickListener.invoke(data, adapterPosition)
             }
-
-            onBindWithPosition?.invoke(data, itemView, adapterPosition)?.root?.setOnClickListener {
-                onClickListener.invoke(data, adapterPosition)
-            }
         }
     }
 
-    inner class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    inner class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        fun bind() {
+            onBindLoading?.invoke(itemView)
+        }
+    }
 
     companion object {
         private const val TYPE_ITEM = 100

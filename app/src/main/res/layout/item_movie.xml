@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/movie_item_spacing"
+    app:cardCornerRadius="@dimen/space_x2">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_item_movie_poster"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/movie_poster_height"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/TopRoundedImageView"
+            app:srcCompat="@drawable/img_example_poster" />
+
+        <TextView
+            android:id="@+id/tv_item_movie_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/space_x1"
+            android:layout_marginTop="@dimen/space_x0_half"
+            android:ellipsize="end"
+            android:lines="2"
+            android:maxLines="2"
+            android:textAppearance="?textAppearanceTitleMedium"
+            app:layout_constraintTop_toBottomOf="@id/iv_item_movie_poster"
+            tools:text="Avatar: The Way of Water" />
+
+        <androidx.appcompat.widget.AppCompatRatingBar
+            android:id="@+id/rb_item_movie_vote"
+            style="?ratingBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_x1"
+            android:layout_marginTop="@dimen/space_x1"
+            android:isIndicator="true"
+            android:max="5"
+            android:numStars="5"
+            android:stepSize="0.1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_item_movie_title"
+            tools:rating="3" />
+
+        <TextView
+            android:id="@+id/tv_item_movie_voters_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_x0_half"
+            android:layout_marginEnd="@dimen/space_x1"
+            android:maxLines="1"
+            android:textAppearance="?textAppearanceLabelSmall"
+            app:layout_constraintBottom_toBottomOf="@id/rb_item_movie_vote"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/rb_item_movie_vote"
+            app:layout_constraintTop_toTopOf="@id/rb_item_movie_vote"
+            tools:text="(1001 vote)" />
+
+        <TextView
+            android:id="@+id/tv_item_movie_overview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/space_x1"
+            android:layout_marginTop="@dimen/space_x1"
+            android:drawablePadding="@dimen/space_x0_half"
+            android:ellipsize="end"
+            android:lines="3"
+            android:maxLines="3"
+            android:textAppearance="?textAppearanceBodySmall"
+            app:layout_constraintTop_toBottomOf="@id/rb_item_movie_vote"
+            tools:text="Set more than a decade after the events of the first film, learn the story of the Sully family (Jake, Neytiri, and their kids), the trouble that follows them, the lengths they go to keep each other safe, the battles they fight to stay alive, and the tragedies they endure." />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_item_movie_release_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/space_x1"
+            android:layout_marginTop="@dimen/space_x1"
+            android:layout_marginBottom="@dimen/space_x1_half"
+            android:drawablePadding="@dimen/space_x0_half"
+            android:gravity="end"
+            android:textAppearance="?textAppearanceLabelSmall"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_item_movie_overview"
+            tools:text="14 Dec 2022" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

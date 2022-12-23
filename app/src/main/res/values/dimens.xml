@@ -2,8 +2,15 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="material_emphasis_medium">1</dimen>
 
+    <dimen name="space_x0_half">4dp</dimen>
     <dimen name="space_x1">8dp</dimen>
+    <dimen name="space_x1_half">12dp</dimen>
     <dimen name="space_x2">16dp</dimen>
+    <dimen name="space_x2_half">20dp</dimen>
     <dimen name="space_x3">24dp</dimen>
+    <dimen name="space_x3_half">28dp</dimen>
     <dimen name="space_x4">32dp</dimen>
+
+    <dimen name="movie_poster_height">260dp</dimen>
+    <dimen name="movie_item_spacing">6dp</dimen>
 </resources>

@@ -1,19 +1,24 @@
 package com.creativijaya.moviegallery.presentation.main
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.creativijaya.moviegallery.R
 import com.creativijaya.moviegallery.databinding.FragmentHomeBinding
-import com.creativijaya.moviegallery.databinding.ItemGenreBinding
-import com.creativijaya.moviegallery.domain.models.GenreDto
+import com.creativijaya.moviegallery.databinding.ItemMovieBinding
+import com.creativijaya.moviegallery.domain.models.MovieDto
 import com.creativijaya.moviegallery.presentation.base.BaseFragment
 import com.creativijaya.moviegallery.presentation.main.HomeViewModel.Event
-import com.creativijaya.moviegallery.presentation.main.HomeViewModel.State
+import com.creativijaya.moviegallery.utils.DateTimeUtil
+import com.creativijaya.moviegallery.utils.EndlessScrollListener
 import com.creativijaya.moviegallery.utils.GenericRecyclerViewAdapter
+import com.creativijaya.moviegallery.utils.MovieUtil
+import com.creativijaya.moviegallery.utils.loadImageUrl
 import com.creativijaya.moviegallery.utils.toGone
 import com.creativijaya.moviegallery.utils.toVisible
 import com.creativijaya.moviegallery.utils.viewBinding
@@ -25,11 +30,23 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     private val binding: FragmentHomeBinding by viewBinding()
     private val viewModel: HomeViewModel by inject()
 
-    private val genreAdapter: GenericRecyclerViewAdapter<GenreDto> by lazy {
+    private val movieAdapter: GenericRecyclerViewAdapter<MovieDto> by lazy {
         GenericRecyclerViewAdapter(
-            itemLayoutRes = R.layout.item_genre,
-            onBind = this::onBindGenreItem
+            itemLayoutRes = R.layout.item_movie,
+            onBind = this::onBindMovieItem
         )
+    }
+
+    private val gridLayoutManager: GridLayoutManager by lazy {
+        GridLayoutManager(requireContext(), GRID_SPAN)
+    }
+
+    private val endlessScrollListener: EndlessScrollListener by lazy {
+        object : EndlessScrollListener(gridLayoutManager) {
+            override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
+                viewModel.onEvent(Event.OnGetPopularMovieList)
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -38,14 +55,15 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         setupLayout()
         subscribeState()
 
-        viewModel.onEvent(Event.LoadGenreList)
+        viewModel.onEvent(Event.OnGetPopularMovieList)
     }
 
     private fun setupLayout() {
         with(binding) {
-            rvGenres.apply {
-                layoutManager = LinearLayoutManager(requireContext())
-                adapter = genreAdapter
+            rvMovies.apply {
+                layoutManager = gridLayoutManager
+                adapter = movieAdapter
+                addOnScrollListener(endlessScrollListener)
             }
         }
     }
@@ -53,39 +71,73 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     private fun subscribeState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { uiState ->
-                    when (uiState) {
-                        State.Uninitialized -> Unit
-                        State.OnLoading -> showLoading()
-                        is State.ShowGenreList -> showGenreList(uiState.genreList)
-                        is State.OnError -> handleError(uiState.error)
-                    }
-                }
+                viewModel.uiState.collect(::handleState)
             }
         }
     }
 
-    private fun showLoading() = with(binding) {
-        rvGenres.toGone()
-        cpiHome.toVisible()
+    private fun handleState(uiState: HomeUiState) {
+        Log.d("DEBUG_MAIN", "state: $uiState")
+        when {
+            uiState.isLoading -> showLoading(uiState.currentPage)
+            uiState.isSuccess -> showMovieList(uiState.currentPage, uiState.movieList)
+            uiState.isFailed -> handleError(uiState.currentPage, uiState.error)
+        }
     }
 
-    private fun showGenreList(genreList: List<GenreDto>) = with(binding) {
-        cpiHome.toGone()
-        rvGenres.toVisible()
+    override fun onDestroyView() {
+        super.onDestroyView()
 
-        genreAdapter.setData(genreList)
+        binding.rvMovies.removeOnScrollListener(endlessScrollListener)
     }
 
-    override fun handleError(throwable: Throwable) {
-        binding.cpiHome.toGone()
-        super.handleError(throwable)
+    private fun showLoading(page: Int) = with(binding) {
+        if (page == 1) {
+            rvMovies.toGone()
+            cpiHome.toVisible()
+        } else {
+            movieAdapter.showLoading()
+        }
     }
 
-    private fun onBindGenreItem(
-        data: GenreDto,
+    private fun showMovieList(page: Int, movieList: List<MovieDto>) = with(binding) {
+        if (page == 1) {
+            cpiHome.toGone()
+            rvMovies.toVisible()
+
+            movieAdapter.setData(movieList)
+        } else {
+            movieAdapter.hideLoading()
+            movieAdapter.addData(movieList)
+        }
+    }
+
+    private fun handleError(page: Int, exception: Exception?) {
+        exception?.let { handleError(it) }
+
+        if (page == 1) {
+            binding.cpiHome.toGone()
+        } else {
+            movieAdapter.hideLoading()
+        }
+    }
+
+    private fun onBindMovieItem(
+        data: MovieDto,
         view: View
-    ) = ItemGenreBinding.bind(view).apply {
-        root.text = data.name
+    ) = ItemMovieBinding.bind(view).apply {
+        ivItemMoviePoster.loadImageUrl(MovieUtil.getImageUrl(data.posterPath))
+        tvItemMovieTitle.text = data.title
+        rbItemMovieVote.rating = data.voteAverage.toFloat() / 2f
+        tvItemMovieVotersCount.text = getString(
+            R.string.format_voters_count,
+            data.voteCount
+        )
+        tvItemMovieOverview.text = data.overview
+        tvItemMovieReleaseDate.text = DateTimeUtil.convertTimeStr(data.releaseDate)
+    }
+
+    companion object {
+        private const val GRID_SPAN = 2
     }
 }

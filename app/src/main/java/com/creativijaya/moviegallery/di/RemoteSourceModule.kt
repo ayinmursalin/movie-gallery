@@ -1,11 +1,13 @@
 package com.creativijaya.moviegallery.di
 
 import android.app.Application
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.creativijaya.moviegallery.BuildConfig
 import com.creativijaya.moviegallery.data.remote.interceptors.ApiKeyInterceptor
 import com.creativijaya.moviegallery.data.remote.services.MovieService
 import okhttp3.Cache
 import okhttp3.OkHttpClient
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -21,6 +23,11 @@ val remoteSourceModule = module {
             .cache(get())
             .followSslRedirects(true)
             .addInterceptor(ApiKeyInterceptor())
+            .addInterceptor(
+                ChuckerInterceptor.Builder(androidContext())
+                    .alwaysReadResponseBody(true)
+                    .build()
+            )
             .build()
     }
 

@@ -26,6 +26,7 @@ android {
         buildTypes.each {
             it.buildConfigField "String", "BASE_URL", getProps("api.base_url", "secret.properties")
             it.buildConfigField "String", "API_KEY", getProps("api.api_key", "secret.properties")
+            it.buildConfigField "String", "IMAGE_BASE_URL", getProps("api.image_base_url", "secret.properties")
         }
     }
     compileOptions {
@@ -67,6 +68,10 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.google.code.gson:gson:$gson_version"
+    implementation "com.github.chuckerteam.chucker:library:3.5.2"
+
+    // Glide (Network Image Loader)
+    implementation 'com.github.bumptech.glide:glide:4.14.2'
 
     // Test
     testImplementation 'junit:junit:4.13.2'

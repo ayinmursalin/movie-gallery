@@ -17,32 +17,32 @@ open class BaseFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes) {
         Toast.makeText(requireContext(), message, duration).show()
     }
 
-    open fun handleError(throwable: Throwable) {
-        when (throwable) {
+    protected fun handleError(exception: Exception) {
+        when (exception) {
             is BadRequestException -> {
-                showToast(throwable.errorMessage.orEmpty())
+                showToast(exception.errorMessage.orEmpty())
             }
             is InternalServerException -> {
-                showToast(throwable.errorMessage.orEmpty())
+                showToast(exception.errorMessage.orEmpty())
             }
             is MethodNotAllowedException -> {
-                showToast(throwable.errorMessage.orEmpty())
+                showToast(exception.errorMessage.orEmpty())
             }
             is NotFoundException -> {
                 showToast("URL Not Found")
             }
             is UnauthorizedException -> {
-                showToast(throwable.errorMessage.orEmpty())
+                showToast(exception.errorMessage.orEmpty())
             }
             is UnprocessableEntityException -> {
-                showToast(throwable.errorMessage.orEmpty())
+                showToast(exception.errorMessage.orEmpty())
             }
             is TooManyRequestException -> {
-                showToast(throwable.errorMessage.orEmpty())
+                showToast(exception.errorMessage.orEmpty())
             }
             else -> {
-                showToast(throwable.message.orEmpty())
-                throwable.printStackTrace()
+                showToast(exception.message.orEmpty())
+                exception.printStackTrace()
             }
         }
     }

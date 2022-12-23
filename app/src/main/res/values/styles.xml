@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="TopRoundedImageView" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSizeTopLeft">@dimen/space_x2</item>
+        <item name="cornerSizeTopRight">@dimen/space_x2</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
 </resources>

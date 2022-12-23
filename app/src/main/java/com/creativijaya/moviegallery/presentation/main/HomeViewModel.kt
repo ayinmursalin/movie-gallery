@@ -2,49 +2,67 @@ package com.creativijaya.moviegallery.presentation.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.creativijaya.moviegallery.domain.models.GenreDto
 import com.creativijaya.moviegallery.domain.usecases.GetGenreListUseCase
+import com.creativijaya.moviegallery.domain.usecases.GetPopularMovieUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val getGenreListUseCase: GetGenreListUseCase
+    private val getGenreListUseCase: GetGenreListUseCase,
+    private val getPopularMovieUseCase: GetPopularMovieUseCase
 ) : ViewModel() {
 
     sealed class Event {
-        object LoadGenreList : Event()
+        object OnGetPopularMovieList : Event()
     }
 
-    sealed class State {
-        object Uninitialized : State()
-        object OnLoading : State()
-        data class ShowGenreList(val genreList: List<GenreDto>): State()
-        data class OnError(val error: Exception) : State()
-    }
+    private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
 
-    private val _uiState: MutableStateFlow<State> = MutableStateFlow(State.Uninitialized)
-
-    val uiState: StateFlow<State>
+    val uiState: StateFlow<HomeUiState>
         get() = _uiState.asStateFlow()
 
     fun onEvent(event: Event) {
         when (event) {
-            Event.LoadGenreList -> getGenreList()
+            Event.OnGetPopularMovieList -> getMovieList()
         }
     }
 
-    private fun getGenreList() {
-        _uiState.value = State.OnLoading
+    private fun getMovieList() {
+        val hasMoreData = _uiState.value.currentPage < _uiState.value.totalPages
+        if (_uiState.value.isLoading || hasMoreData.not()) {
+            return
+        }
+
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                currentPage = it.currentPage + 1
+            )
+        }
 
         viewModelScope.launch {
             try {
-                val result = getGenreListUseCase()
+                val result = getPopularMovieUseCase(page = _uiState.value.currentPage)
 
-                _uiState.value = State.ShowGenreList(result)
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = null,
+                        movieList = result.results,
+                        currentPage = result.page,
+                        totalPages = result.totalPages
+                    )
+                }
             } catch (e: Exception) {
-                _uiState.value = State.OnError(e)
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = e,
+                    )
+                }
             }
         }
     }
