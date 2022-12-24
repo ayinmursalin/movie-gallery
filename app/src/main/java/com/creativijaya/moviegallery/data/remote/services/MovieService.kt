@@ -11,9 +11,11 @@ interface MovieService {
     @GET("genre/movie/list")
     suspend fun getGenreList(): GetGenreResponse
 
-    @GET("movie/popular")
-    suspend fun getPopularMovies(
-        @Query("page") page: Int = 1
+    @GET("discover/movie")
+    suspend fun discoverMovies(
+        @Query("page") page: Int = 1,
+        @Query("sort_by") sortedBy: String = "",
+        @Query("with_genres") withGenreIds: String? = null
     ): BasePaginationResponse<MovieResponse>
 
 }

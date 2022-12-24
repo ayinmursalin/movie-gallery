@@ -14,6 +14,7 @@
         <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:layout_scrollFlags="scroll|enterAlways"
             app:title="@string/app_name" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -22,11 +23,19 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_movies"
+        <TextView
+            android:id="@+id/tv_home_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:padding="@dimen/space_x2"
+            android:textAppearance="?textAppearanceTitleMedium"
+            tools:text="Popular Movies" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_home_movies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_home_title"
             android:clipToPadding="false"
             android:padding="@dimen/space_x0_half"
             tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
@@ -34,7 +43,7 @@
             tools:spanCount="2" />
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/cpi_home"
+            android:id="@+id/cpi_home_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -42,4 +51,14 @@
             android:visibility="gone"
             tools:visibility="gone" />
     </RelativeLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_home_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/space_x2"
+        android:src="@drawable/ic_filter"
+        app:tint="?colorOnPrimaryContainer"
+        tools:ignore="ContentDescription" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

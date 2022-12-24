@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.creativijaya.moviegallery.R
 import com.creativijaya.moviegallery.databinding.FragmentHomeBinding
 import com.creativijaya.moviegallery.databinding.ItemMovieBinding
+import com.creativijaya.moviegallery.domain.models.GenreDto
 import com.creativijaya.moviegallery.domain.models.MovieDto
 import com.creativijaya.moviegallery.presentation.base.BaseFragment
 import com.creativijaya.moviegallery.presentation.main.HomeViewModel.Event
@@ -24,7 +25,8 @@ import com.creativijaya.moviegallery.utils.viewBinding
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
-class HomeFragment : BaseFragment(R.layout.fragment_home) {
+class HomeFragment : BaseFragment(R.layout.fragment_home),
+    HomeFilterDialogListener {
 
     private val binding: FragmentHomeBinding by viewBinding()
     private val viewModel: HomeViewModel by inject()
@@ -43,10 +45,12 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     private val endlessScrollListener: EndlessScrollListener by lazy {
         object : EndlessScrollListener(gridLayoutManager) {
             override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
-                viewModel.onEvent(Event.OnGetPopularMovieList)
+                viewModel.onEvent(Event.OnDiscoverMovieList)
             }
         }
     }
+
+    private var filterDialog: HomeFilterDialog? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,15 +58,28 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         setupLayout()
         subscribeState()
 
-        viewModel.onEvent(Event.OnGetPopularMovieList)
+        getData()
+    }
+
+    private fun getData() {
+        viewModel.onEvent(Event.OnGetGenreList)
+        viewModel.onEvent(Event.OnDiscoverMovieList)
     }
 
     private fun setupLayout() {
         with(binding) {
-            rvMovies.apply {
+            rvHomeMovies.apply {
                 layoutManager = gridLayoutManager
                 adapter = movieAdapter
                 addOnScrollListener(endlessScrollListener)
+            }
+
+            fabHomeFilter.setOnClickListener {
+                filterDialog = HomeFilterDialog.newInstance(
+                    viewModel.uiState.value.genreList,
+                    viewModel.uiState.value.selectedGenre
+                )
+                filterDialog?.show(childFragmentManager, TAG_FILTER_DIALOG)
             }
         }
     }
@@ -76,6 +93,8 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     }
 
     private fun handleState(uiState: HomeUiState) {
+        showPageTitle(uiState.selectedGenre)
+
         when {
             uiState.isLoading -> showLoading(uiState.currentPage)
             uiState.isSuccess -> showMovieList(uiState.currentPage, uiState.movieList)
@@ -86,13 +105,23 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        binding.rvMovies.removeOnScrollListener(endlessScrollListener)
+        binding.rvHomeMovies.removeOnScrollListener(endlessScrollListener)
+        filterDialog?.dismissAllowingStateLoss()
+        filterDialog = null
+    }
+
+    private fun showPageTitle(selectedGenre: GenreDto?) = with(binding) {
+        tvHomeTitle.text = if (selectedGenre == null) {
+            getString(R.string.text_popular_movies)
+        } else {
+            getString(R.string.format_selected_genre, selectedGenre.name)
+        }
     }
 
     private fun showLoading(page: Int) = with(binding) {
         if (page == 1) {
-            rvMovies.toGone()
-            cpiHome.toVisible()
+            rvHomeMovies.toGone()
+            cpiHomeIndicator.toVisible()
         } else {
             endlessScrollListener.showLoading()
             movieAdapter.showLoading()
@@ -101,8 +130,8 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
     private fun showMovieList(page: Int, movieList: List<MovieDto>) = with(binding) {
         if (page == 1) {
-            cpiHome.toGone()
-            rvMovies.toVisible()
+            cpiHomeIndicator.toGone()
+            rvHomeMovies.toVisible()
 
             movieAdapter.setData(movieList)
         } else {
@@ -116,7 +145,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         exception?.let { handleError(it) }
 
         if (page == 1) {
-            binding.cpiHome.toGone()
+            binding.cpiHomeIndicator.toGone()
         } else {
             endlessScrollListener.hideLoading()
             movieAdapter.hideLoading()
@@ -138,7 +167,12 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         tvItemMovieReleaseDate.text = DateTimeUtil.convertTimeStr(data.releaseDate)
     }
 
+    override fun onFilterApplied(genre: GenreDto) {
+        viewModel.onEvent(Event.OnFilterApplied(genre))
+    }
+
     companion object {
         private const val GRID_SPAN = 2
+        private const val TAG_FILTER_DIALOG = "HomeFragment.TAG_FILTER_DIALOG"
     }
 }

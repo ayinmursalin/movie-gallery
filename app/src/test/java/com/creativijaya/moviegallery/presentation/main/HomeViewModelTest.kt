@@ -7,7 +7,7 @@ import com.creativijaya.moviegallery.data.remote.responses.MovieResponse
 import com.creativijaya.moviegallery.data.remote.services.MovieService
 import com.creativijaya.moviegallery.domain.models.MovieDto
 import com.creativijaya.moviegallery.domain.usecases.GetGenreListUseCase
-import com.creativijaya.moviegallery.domain.usecases.GetPopularMovieUseCase
+import com.creativijaya.moviegallery.domain.usecases.DiscoverMovieUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -39,14 +39,14 @@ class HomeViewModelTest {
         GetGenreListUseCase(movieService)
     }
 
-    private val getPopularMovieUseCase by lazy {
-        GetPopularMovieUseCase(movieService)
+    private val discoverMovieUseCase by lazy {
+        DiscoverMovieUseCase(movieService)
     }
 
     private val viewModel: HomeViewModel by lazy {
         HomeViewModel(
             getGenreListUseCase,
-            getPopularMovieUseCase,
+            discoverMovieUseCase,
         )
     }
 
@@ -63,7 +63,7 @@ class HomeViewModelTest {
     fun onGetPopularMovieList_SuccessPopulateMovieList() = runTest {
         movieService = mock {
             onBlocking {
-                getPopularMovies(1)
+                discoverMovies(1)
             } doReturn BasePaginationResponse(
                 results = listOf(
                     MovieResponse(id = 1, title = "Title 1"),
@@ -73,7 +73,7 @@ class HomeViewModelTest {
             )
         }
 
-        viewModel.onEvent(HomeViewModel.Event.OnGetPopularMovieList)
+        viewModel.onEvent(HomeViewModel.Event.OnDiscoverMovieList)
 
         // asset - show loading
         Assert.assertEquals(true, viewModel.uiState.value.isLoading)
@@ -94,13 +94,13 @@ class HomeViewModelTest {
     fun onGetPopularMovieList_ApiKeyInvalid() = runTest {
         movieService = mock {
             onBlocking {
-                getPopularMovies(1)
+                discoverMovies(1)
             } doThrow HttpException(
                 Response.error<ResponseBody>(401, errorResponse.toResponseBody())
             )
         }
 
-        viewModel.onEvent(HomeViewModel.Event.OnGetPopularMovieList)
+        viewModel.onEvent(HomeViewModel.Event.OnDiscoverMovieList)
 
         // asset - show loading
         Assert.assertEquals(true, viewModel.uiState.value.isLoading)
