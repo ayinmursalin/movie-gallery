@@ -23,7 +23,7 @@ fun MovieVideoResponse.toMovieVideoDto() = MovieVideoDto(
     key= this.key.orEmpty(),
     name = this.name.orEmpty(),
     type = MovieVideoType.fromString(this.type),
-    site = MovieVideoSiteType.fromString(this.type)
+    site = MovieVideoSiteType.fromString(this.site)
 )
 
 fun MovieResponse.toMovieDto() = MovieDto(

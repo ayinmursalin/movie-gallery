@@ -68,7 +68,6 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/space_x1"
             android:layout_marginTop="@dimen/space_x1"
-            android:drawablePadding="@dimen/space_x0_half"
             android:ellipsize="end"
             android:lines="3"
             android:maxLines="3"

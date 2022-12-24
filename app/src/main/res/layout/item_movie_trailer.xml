@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/movie_trailer_width"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/space_x1"
+    app:cardCornerRadius="@dimen/space_x1">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/movie_trailer_width"
+        android:layout_height="wrap_content"
+        android:background="?colorSecondaryContainer">
+
+        <com.google.android.youtube.player.YouTubeThumbnailView
+            android:id="@+id/iv_item_trailer_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/movie_trailer_height"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/img_example_poster" />
+
+        <TextView
+            android:id="@+id/tv_item_trailer_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/space_x1"
+            android:layout_marginVertical="@dimen/space_x0_half"
+            android:maxLines="1"
+            android:textAppearance="?textAppearanceLabelLarge"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_item_trailer_thumbnail"
+            tools:text="Avatar" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

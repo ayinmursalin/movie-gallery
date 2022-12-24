@@ -13,4 +13,6 @@
 
     <dimen name="movie_poster_height">260dp</dimen>
     <dimen name="movie_item_spacing">6dp</dimen>
+    <dimen name="movie_trailer_width">220dp</dimen>
+    <dimen name="movie_trailer_height">148dp</dimen>
 </resources>

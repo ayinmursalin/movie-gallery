@@ -1,8 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".presentation.detailmovie.DetailMovieFragment">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/movie_poster_height"
+            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_movie_detail_backdrop"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/movie_poster_height"
+                android:scaleType="centerCrop"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/TopRoundedImageView"
+                tools:src="@drawable/img_example_poster" />
+
+            <androidx.appcompat.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:layout_gravity="bottom"
+                android:gravity="center_vertical"
+                app:contentInsetStart="0dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:alpha="0.3"
+                        android:background="?colorSurface" />
+
+                    <TextView
+                        android:id="@+id/tv_movie_detail_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginHorizontal="@dimen/space_x2"
+                        android:ellipsize="marquee"
+                        android:singleLine="true"
+                        android:textAppearance="?textAppearanceTitleLarge"
+                        android:textStyle="bold"
+                        tools:text="Avatar: The Way of Water" />
+                </FrameLayout>
+            </androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.appcompat.widget.AppCompatRatingBar
+                android:id="@+id/rb_movie_detail_vote"
+                style="?ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_x2"
+                android:layout_marginTop="@dimen/space_x2"
+                android:isIndicator="true"
+                android:max="5"
+                android:numStars="5"
+                android:stepSize="0.1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:rating="3" />
+
+            <TextView
+                android:id="@+id/tv_movie_detail_voters_count"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_x1"
+                android:layout_marginEnd="@dimen/space_x2"
+                android:maxLines="1"
+                android:textAppearance="?textAppearanceBodySmall"
+                app:layout_constraintBottom_toBottomOf="@id/rb_movie_detail_vote"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/rb_movie_detail_vote"
+                app:layout_constraintTop_toTopOf="@id/rb_movie_detail_vote"
+                tools:text="(1001 vote)" />
+
+            <TextView
+                android:id="@+id/tv_movie_detail_overview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/space_x2"
+                android:layout_marginTop="@dimen/space_x2"
+                android:ellipsize="end"
+                android:textAppearance="?textAppearanceBodyMedium"
+                app:layout_constraintTop_toBottomOf="@id/rb_movie_detail_vote"
+                tools:text="Set more than a decade after the events of the first film, learn the story of the Sully family (Jake, Neytiri, and their kids), the trouble that follows them, the lengths they go to keep each other safe, the battles they fight to stay alive, and the tragedies they endure." />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_movie_detail_release_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/space_x2"
+                android:layout_marginTop="@dimen/space_x1"
+                android:layout_marginBottom="@dimen/space_x1_half"
+                android:drawablePadding="@dimen/space_x0_half"
+                android:gravity="end"
+                android:textAppearance="?textAppearanceLabelSmall"
+                app:layout_constraintTop_toBottomOf="@id/tv_movie_detail_overview"
+                tools:text="14 Dec 2022" />
+
+            <TextView
+                android:id="@+id/tv_movie_detail_trailers_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/space_x2"
+                android:layout_marginTop="@dimen/space_x3"
+                android:layout_marginBottom="@dimen/space_x1_half"
+                android:text="@string/text_trailers"
+                android:textAppearance="?textAppearanceTitleLarge"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/tv_movie_detail_release_date" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_movie_detail_trailers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:padding="@dimen/space_x1"
+                app:layout_constraintTop_toBottomOf="@id/tv_movie_detail_trailers_label"
+                tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_movie_trailer"
+                tools:orientation="horizontal" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

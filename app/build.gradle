@@ -28,6 +28,7 @@ android {
             it.buildConfigField "String", "BASE_URL", getProps("api.base_url", "secret.properties")
             it.buildConfigField "String", "API_KEY", getProps("api.api_key", "secret.properties")
             it.buildConfigField "String", "IMAGE_BASE_URL", getProps("api.image_base_url", "secret.properties")
+            it.buildConfigField "String", "YOUTUBE_API_KEY", getProps("youtube.api_key", "secret.properties")
         }
     }
     compileOptions {
@@ -74,6 +75,9 @@ dependencies {
 
     // Glide (Network Image Loader)
     implementation 'com.github.bumptech.glide:glide:4.14.2'
+
+    // Youtube API
+    implementation files('libs/YouTubeAndroidPlayerApi.jar')
 
     // Test
     testImplementation 'junit:junit:4.13.2'

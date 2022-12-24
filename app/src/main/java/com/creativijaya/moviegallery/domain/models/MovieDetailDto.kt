@@ -1,6 +1,8 @@
 package com.creativijaya.moviegallery.domain.models
 
 import android.os.Parcelable
+import com.creativijaya.moviegallery.domain.models.enums.MovieVideoSiteType
+import com.creativijaya.moviegallery.domain.models.enums.MovieVideoType
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -21,4 +23,9 @@ data class MovieDetailDto(
     val voteCount: Int = 0,
     val genres: List<GenreDto> = emptyList(),
     val videos: List<MovieVideoDto> = emptyList()
-) : Parcelable
+) : Parcelable {
+    val youtubeTrailers: List<MovieVideoDto>
+        get() = videos.filter {
+            it.type == MovieVideoType.TRAILER && it.site == MovieVideoSiteType.YOUTUBE
+        }
+}
