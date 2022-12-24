@@ -19,7 +19,7 @@ class HomeViewModel(
     sealed class Event {
         object OnGetGenreList : Event()
         object OnDiscoverMovieList : Event()
-        class OnFilterApplied(val genre: GenreDto) : Event()
+        data class OnFilterApplied(val genre: GenreDto) : Event()
     }
 
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())

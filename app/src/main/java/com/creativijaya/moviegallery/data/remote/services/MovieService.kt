@@ -14,7 +14,7 @@ interface MovieService {
     @GET("discover/movie")
     suspend fun discoverMovies(
         @Query("page") page: Int = 1,
-        @Query("sort_by") sortedBy: String = "",
+        @Query("sort_by") sortedBy: String? = null,
         @Query("with_genres") withGenreIds: String? = null
     ): BasePaginationResponse<MovieResponse>
 

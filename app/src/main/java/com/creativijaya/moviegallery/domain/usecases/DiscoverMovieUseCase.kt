@@ -7,6 +7,7 @@ import com.creativijaya.moviegallery.domain.models.MovieDto
 import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieOrderType
 import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieSortedType
 import com.creativijaya.moviegallery.domain.toDto
+import com.creativijaya.moviegallery.utils.MovieUtil
 import com.creativijaya.moviegallery.utils.mapTo
 import com.creativijaya.moviegallery.utils.orZero
 import com.creativijaya.moviegallery.utils.successOrError
@@ -21,7 +22,7 @@ class DiscoverMovieUseCase(
         genreIds: List<Int>? = null
     ): BasePaginationDto<MovieDto> {
         return successOrError {
-            val sortedBy = "${sortedType.key}.${orderType.key}"
+            val sortedBy = MovieUtil.getSortedBy(sortedType, orderType)
             val withGenreIds = genreIds?.joinToString(",")
 
             service.discoverMovies(

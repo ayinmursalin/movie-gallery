@@ -3,11 +3,18 @@ package com.creativijaya.moviegallery.presentation.main
 import com.creativijaya.moviegallery.CoroutineTestRule
 import com.creativijaya.moviegallery.data.remote.exceptions.UnauthorizedException
 import com.creativijaya.moviegallery.data.remote.responses.BasePaginationResponse
+import com.creativijaya.moviegallery.data.remote.responses.GenreResponse
+import com.creativijaya.moviegallery.data.remote.responses.GetGenreResponse
 import com.creativijaya.moviegallery.data.remote.responses.MovieResponse
 import com.creativijaya.moviegallery.data.remote.services.MovieService
-import com.creativijaya.moviegallery.domain.models.MovieDto
-import com.creativijaya.moviegallery.domain.usecases.GetGenreListUseCase
+import com.creativijaya.moviegallery.domain.models.GenreDto
+import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieOrderType
+import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieSortedType
+import com.creativijaya.moviegallery.domain.toDto
 import com.creativijaya.moviegallery.domain.usecases.DiscoverMovieUseCase
+import com.creativijaya.moviegallery.domain.usecases.GetGenreListUseCase
+import com.creativijaya.moviegallery.utils.MovieUtil
+import com.creativijaya.moviegallery.utils.orFalse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -50,6 +57,18 @@ class HomeViewModelTest {
         )
     }
 
+    private val currentPage = 1
+
+    private val movieListResponse = listOf(
+        MovieResponse(id = 1, title = "Title 1", genreIds = listOf(1, 2)),
+        MovieResponse(id = 2, title = "Title 2", genreIds = listOf(2, 3))
+    )
+
+    private val genreListResponse = listOf(
+        GenreResponse(id = 1, name = "Comedy"),
+        GenreResponse(id = 2, name = "Action")
+    )
+
     private val errorResponse = """
         {
             "status_code": 7,
@@ -58,21 +77,23 @@ class HomeViewModelTest {
         }
     """.trimIndent()
 
+    private val selectedGenre = GenreDto(id = 1, name = "Comedy")
+    private val sortedType = DiscoverMovieSortedType.POPULARITY
+    private val orderType = DiscoverMovieOrderType.DESC
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun onGetPopularMovieList_SuccessPopulateMovieList() = runTest {
+    fun onDiscoverMovieList_SuccessGetMovieList() = runTest {
+        val sortedBy = MovieUtil.getSortedBy(sortedType, orderType)
         movieService = mock {
             onBlocking {
-                discoverMovies(1)
+                discoverMovies(page = currentPage, sortedBy = sortedBy)
             } doReturn BasePaginationResponse(
-                results = listOf(
-                    MovieResponse(id = 1, title = "Title 1"),
-                    MovieResponse(id = 2, title = "Title 2")
-                ),
-                totalPages = 10
+                results = movieListResponse
             )
         }
 
+        // discover movie list
         viewModel.onEvent(HomeViewModel.Event.OnDiscoverMovieList)
 
         // asset - show loading
@@ -81,25 +102,24 @@ class HomeViewModelTest {
         // assert - success get movie list
         advanceUntilIdle()
         Assert.assertEquals(
-            listOf(
-                MovieDto(id = 1, title = "Title 1"),
-                MovieDto(id = 2, title = "Title 2")
-            ),
+            movieListResponse.map { it.toDto() },
             viewModel.uiState.value.movieList
         )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun onGetPopularMovieList_ApiKeyInvalid() = runTest {
+    fun onDiscoverMovieList_ApiKeyInvalid() = runTest {
+        val sortedBy = MovieUtil.getSortedBy(sortedType, orderType)
         movieService = mock {
             onBlocking {
-                discoverMovies(1)
+                discoverMovies(page = currentPage, sortedBy = sortedBy)
             } doThrow HttpException(
                 Response.error<ResponseBody>(401, errorResponse.toResponseBody())
             )
         }
 
+        // discover movie list
         viewModel.onEvent(HomeViewModel.Event.OnDiscoverMovieList)
 
         // asset - show loading
@@ -110,6 +130,79 @@ class HomeViewModelTest {
         Assert.assertEquals(
             UnauthorizedException("Invalid API key: You must be granted a valid key."),
             viewModel.uiState.value.error
+        )
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun onGetGenreList_SuccessGetGenreList() = runTest {
+        movieService = mock {
+            onBlocking {
+                getGenreList()
+            } doReturn GetGenreResponse(
+                genres = genreListResponse
+            )
+        }
+
+        // get genre list
+        viewModel.onEvent(HomeViewModel.Event.OnGetGenreList)
+
+        // assert - success get genre list
+        advanceUntilIdle()
+        Assert.assertEquals(
+            genreListResponse.map { it.toDto() },
+            viewModel.uiState.value.genreList
+        )
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun onFilterApplied_SelectedGenreNotNull() = runTest {
+        movieService = mock { }
+
+        // assert - selected genre is null (first time open)
+        Assert.assertEquals(
+            null,
+            viewModel.uiState.value.selectedGenre
+        )
+
+        // apply filter with selected genre
+        viewModel.onEvent(HomeViewModel.Event.OnFilterApplied(selectedGenre))
+
+        // assert - selected genre is applied
+        Assert.assertEquals(
+            selectedGenre,
+            viewModel.uiState.value.selectedGenre
+        )
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun onFilterApplied_SuccessGetMovieListWithGenreIds() = runTest {
+        val sortedBy = MovieUtil.getSortedBy(sortedType, orderType)
+        val filteredMovieList = movieListResponse.filter {
+            it.genreIds?.contains(selectedGenre.id).orFalse()
+        }
+        movieService = mock {
+            onBlocking {
+                discoverMovies(
+                    page = currentPage,
+                    sortedBy = sortedBy,
+                    withGenreIds = selectedGenre.id.toString()
+                )
+            } doReturn BasePaginationResponse(
+                results = filteredMovieList
+            )
+        }
+
+        // apply filter with selected genre
+        viewModel.onEvent(HomeViewModel.Event.OnFilterApplied(selectedGenre))
+
+        // assert - get movie list with only selected genre
+        advanceUntilIdle()
+        Assert.assertEquals(
+            filteredMovieList.map { it.toDto() },
+            viewModel.uiState.value.movieList
         )
     }
 }
