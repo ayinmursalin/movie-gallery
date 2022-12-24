@@ -2,9 +2,7 @@ package com.creativijaya.moviegallery.presentation.main
 
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.creativijaya.moviegallery.R
@@ -22,19 +20,20 @@ import com.creativijaya.moviegallery.utils.loadImageUrl
 import com.creativijaya.moviegallery.utils.toGone
 import com.creativijaya.moviegallery.utils.toVisible
 import com.creativijaya.moviegallery.utils.viewBinding
-import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
+import kotlinx.coroutines.flow.StateFlow
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class HomeFragment : BaseFragment(R.layout.fragment_home),
+class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
     HomeFilterDialogListener {
 
     private val binding: FragmentHomeBinding by viewBinding()
-    private val viewModel: HomeViewModel by inject()
+    private val viewModel: HomeViewModel by viewModel()
 
     private val movieAdapter: GenericRecyclerViewAdapter<MovieDto> by lazy {
         GenericRecyclerViewAdapter(
             itemLayoutRes = R.layout.item_movie,
-            onBind = this::onBindMovieItem
+            onBind = this::onBindMovieItem,
+            onClickListener = this::onMovieItemClickListener
         )
     }
 
@@ -56,14 +55,15 @@ class HomeFragment : BaseFragment(R.layout.fragment_home),
         super.onViewCreated(view, savedInstanceState)
 
         setupLayout()
-        subscribeState()
 
         getData()
     }
 
     private fun getData() {
-        viewModel.onEvent(Event.OnGetGenreList)
-        viewModel.onEvent(Event.OnDiscoverMovieList)
+        if (viewModel.uiState.value.movieList.isEmpty()) {
+            viewModel.onEvent(Event.OnGetGenreList)
+            viewModel.onEvent(Event.OnDiscoverMovieList)
+        }
     }
 
     private fun setupLayout() {
@@ -84,15 +84,20 @@ class HomeFragment : BaseFragment(R.layout.fragment_home),
         }
     }
 
-    private fun subscribeState() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect(::handleState)
-            }
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        binding.rvHomeMovies.layoutManager = null
+        binding.rvHomeMovies.removeOnScrollListener(endlessScrollListener)
+        filterDialog?.dismissAllowingStateLoss()
+        filterDialog = null
     }
 
-    private fun handleState(uiState: HomeUiState) {
+    override fun uiState(): StateFlow<HomeUiState> {
+        return viewModel.uiState
+    }
+
+    override fun handleState(uiState: HomeUiState) {
         showPageTitle(uiState.selectedGenre)
 
         when {
@@ -100,14 +105,6 @@ class HomeFragment : BaseFragment(R.layout.fragment_home),
             uiState.isSuccess -> showMovieList(uiState.currentPage, uiState.movieList)
             uiState.isFailed -> handleError(uiState.currentPage, uiState.error)
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        binding.rvHomeMovies.removeOnScrollListener(endlessScrollListener)
-        filterDialog?.dismissAllowingStateLoss()
-        filterDialog = null
     }
 
     private fun showPageTitle(selectedGenre: GenreDto?) = with(binding) {
@@ -124,7 +121,9 @@ class HomeFragment : BaseFragment(R.layout.fragment_home),
             cpiHomeIndicator.toVisible()
         } else {
             endlessScrollListener.showLoading()
-            movieAdapter.showLoading()
+            binding.rvHomeMovies.post {
+                movieAdapter.showLoading()
+            }
         }
     }
 
@@ -136,19 +135,24 @@ class HomeFragment : BaseFragment(R.layout.fragment_home),
             movieAdapter.setData(movieList)
         } else {
             endlessScrollListener.hideLoading()
-            movieAdapter.hideLoading()
+            binding.rvHomeMovies.post {
+                movieAdapter.hideLoading()
+            }
+
             movieAdapter.addData(movieList)
         }
     }
 
     private fun handleError(page: Int, exception: Exception?) {
-        exception?.let { handleError(it) }
+        handleError(exception)
 
         if (page == 1) {
             binding.cpiHomeIndicator.toGone()
         } else {
             endlessScrollListener.hideLoading()
-            movieAdapter.hideLoading()
+            binding.rvHomeMovies.post {
+                movieAdapter.hideLoading()
+            }
         }
     }
 
@@ -165,6 +169,13 @@ class HomeFragment : BaseFragment(R.layout.fragment_home),
         )
         tvItemMovieOverview.text = data.overview
         tvItemMovieReleaseDate.text = DateTimeUtil.convertTimeStr(data.releaseDate)
+    }
+
+    private fun onMovieItemClickListener(data: MovieDto, position: Int) {
+        val direction = HomeFragmentDirections
+            .actionHomeFragmentToDetailMovieFragment(data.id)
+
+        findNavController().navigate(direction)
     }
 
     override fun onFilterApplied(genre: GenreDto) {

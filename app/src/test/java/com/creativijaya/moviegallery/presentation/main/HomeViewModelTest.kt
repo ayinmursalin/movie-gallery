@@ -10,7 +10,8 @@ import com.creativijaya.moviegallery.data.remote.services.MovieService
 import com.creativijaya.moviegallery.domain.models.GenreDto
 import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieOrderType
 import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieSortedType
-import com.creativijaya.moviegallery.domain.toDto
+import com.creativijaya.moviegallery.domain.toMovieDto
+import com.creativijaya.moviegallery.domain.toGenreDto
 import com.creativijaya.moviegallery.domain.usecases.DiscoverMovieUseCase
 import com.creativijaya.moviegallery.domain.usecases.GetGenreListUseCase
 import com.creativijaya.moviegallery.utils.MovieUtil
@@ -102,7 +103,7 @@ class HomeViewModelTest {
         // assert - success get movie list
         advanceUntilIdle()
         Assert.assertEquals(
-            movieListResponse.map { it.toDto() },
+            movieListResponse.map { it.toMovieDto() },
             viewModel.uiState.value.movieList
         )
     }
@@ -150,7 +151,7 @@ class HomeViewModelTest {
         // assert - success get genre list
         advanceUntilIdle()
         Assert.assertEquals(
-            genreListResponse.map { it.toDto() },
+            genreListResponse.map { it.toGenreDto() },
             viewModel.uiState.value.genreList
         )
     }
@@ -201,7 +202,7 @@ class HomeViewModelTest {
         // assert - get movie list with only selected genre
         advanceUntilIdle()
         Assert.assertEquals(
-            filteredMovieList.map { it.toDto() },
+            filteredMovieList.map { it.toMovieDto() },
             viewModel.uiState.value.movieList
         )
     }

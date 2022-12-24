@@ -30,5 +30,9 @@ data class MovieResponse(
 	@SerializedName("adult")
 	val adult: Boolean? = null,
 	@SerializedName("vote_count")
-	val voteCount: Int? = null
+	val voteCount: Int? = null,
+	@SerializedName("genres")
+	val genres: List<GenreResponse>? = null,
+	@SerializedName("videos")
+	val videos: BasePaginationResponse<MovieVideoResponse>? = null
 )

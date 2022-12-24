@@ -85,6 +85,7 @@ class HomeFilterDialog : BottomSheetDialogFragment() {
         private const val ARGS_GENRE_LIST = "HomeFilterDialog.ARGS_GENRE_LIST"
         private const val ARGS_LAST_SELECTED_GENRE = "HomeFilterDialog.ARGS_LAST_SELECTED_GENRE"
 
+        @JvmStatic
         fun newInstance(
             genreList: List<GenreDto>,
             lastSelectedGenre: GenreDto? = null

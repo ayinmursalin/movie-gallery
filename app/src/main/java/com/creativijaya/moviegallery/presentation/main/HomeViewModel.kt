@@ -3,8 +3,8 @@ package com.creativijaya.moviegallery.presentation.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.creativijaya.moviegallery.domain.models.GenreDto
-import com.creativijaya.moviegallery.domain.usecases.GetGenreListUseCase
 import com.creativijaya.moviegallery.domain.usecases.DiscoverMovieUseCase
+import com.creativijaya.moviegallery.domain.usecases.GetGenreListUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +22,7 @@ class HomeViewModel(
         data class OnFilterApplied(val genre: GenreDto) : Event()
     }
 
-    private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
+    private val _uiState = MutableStateFlow(HomeUiState())
 
     val uiState: StateFlow<HomeUiState>
         get() = _uiState.asStateFlow()
@@ -57,14 +57,14 @@ class HomeViewModel(
             return
         }
 
-        _uiState.update {
-            it.copy(
-                isLoading = true,
-                currentPage = it.currentPage + 1
-            )
-        }
-
         viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isLoading = true,
+                    currentPage = it.currentPage + 1
+                )
+            }
+
             try {
                 val genreIds = _uiState.value.selectedGenre?.let { listOf(it.id) }
                 val result = discoverMovieUseCase(
