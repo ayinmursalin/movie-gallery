@@ -1,4 +1,4 @@
-package com.creativijaya.moviegallery.presentation.main
+package com.creativijaya.moviegallery.presentation.home
 
 import com.creativijaya.moviegallery.CoroutineTestRule
 import com.creativijaya.moviegallery.data.remote.exceptions.UnauthorizedException
@@ -10,8 +10,8 @@ import com.creativijaya.moviegallery.data.remote.services.MovieService
 import com.creativijaya.moviegallery.domain.models.GenreDto
 import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieOrderType
 import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieSortedType
-import com.creativijaya.moviegallery.domain.toMovieDto
-import com.creativijaya.moviegallery.domain.toGenreDto
+import com.creativijaya.moviegallery.domain.mapper.toMovieDto
+import com.creativijaya.moviegallery.domain.mapper.toGenreDto
 import com.creativijaya.moviegallery.domain.usecases.DiscoverMovieUseCase
 import com.creativijaya.moviegallery.domain.usecases.GetGenreListUseCase
 import com.creativijaya.moviegallery.utils.MovieUtil

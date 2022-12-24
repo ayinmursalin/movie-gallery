@@ -6,7 +6,7 @@ import com.creativijaya.moviegallery.domain.models.BasePaginationDto
 import com.creativijaya.moviegallery.domain.models.MovieDto
 import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieOrderType
 import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieSortedType
-import com.creativijaya.moviegallery.domain.toMovieDto
+import com.creativijaya.moviegallery.domain.mapper.toMovieDto
 import com.creativijaya.moviegallery.utils.MovieUtil
 import com.creativijaya.moviegallery.utils.mapTo
 import com.creativijaya.moviegallery.utils.orZero

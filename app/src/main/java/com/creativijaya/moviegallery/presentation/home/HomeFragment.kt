@@ -1,4 +1,4 @@
-package com.creativijaya.moviegallery.presentation.main
+package com.creativijaya.moviegallery.presentation.home
 
 import android.os.Bundle
 import android.view.View
@@ -11,7 +11,7 @@ import com.creativijaya.moviegallery.databinding.ItemMovieBinding
 import com.creativijaya.moviegallery.domain.models.GenreDto
 import com.creativijaya.moviegallery.domain.models.MovieDto
 import com.creativijaya.moviegallery.presentation.base.BaseFragment
-import com.creativijaya.moviegallery.presentation.main.HomeViewModel.Event
+import com.creativijaya.moviegallery.presentation.home.HomeViewModel.Event
 import com.creativijaya.moviegallery.utils.DateTimeUtil
 import com.creativijaya.moviegallery.utils.EndlessScrollListener
 import com.creativijaya.moviegallery.utils.GenericRecyclerViewAdapter
@@ -116,7 +116,7 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
     }
 
     private fun showLoading(page: Int) = with(binding) {
-        if (page == 1) {
+        if (page <= 1) {
             rvHomeMovies.toGone()
             cpiHomeIndicator.toVisible()
         } else {
@@ -128,7 +128,7 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
     }
 
     private fun showMovieList(page: Int, movieList: List<MovieDto>) = with(binding) {
-        if (page == 1) {
+        if (page <= 1) {
             cpiHomeIndicator.toGone()
             rvHomeMovies.toVisible()
 
@@ -146,7 +146,7 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
     private fun handleError(page: Int, exception: Exception?) {
         handleError(exception)
 
-        if (page == 1) {
+        if (page <= 1) {
             binding.cpiHomeIndicator.toGone()
         } else {
             endlessScrollListener.hideLoading()

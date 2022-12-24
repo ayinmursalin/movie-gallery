@@ -1,14 +1,15 @@
 package com.creativijaya.moviegallery.presentation.detailmovie
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.creativijaya.moviegallery.BuildConfig
 import com.creativijaya.moviegallery.R
 import com.creativijaya.moviegallery.databinding.FragmentDetailMovieBinding
+import com.creativijaya.moviegallery.databinding.ItemMovieReviewBinding
 import com.creativijaya.moviegallery.databinding.ItemMovieTrailerBinding
 import com.creativijaya.moviegallery.domain.models.MovieDetailDto
+import com.creativijaya.moviegallery.domain.models.MovieReviewDto
 import com.creativijaya.moviegallery.domain.models.MovieVideoDto
 import com.creativijaya.moviegallery.presentation.base.BaseFragment
 import com.creativijaya.moviegallery.utils.DateTimeUtil
@@ -27,10 +28,17 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
     private val binding: FragmentDetailMovieBinding by viewBinding()
     private val viewModel: DetailMovieViewModel by viewModel()
 
-    private val trailerAdapters: GenericRecyclerViewAdapter<MovieVideoDto> by lazy {
+    private val trailerAdapter: GenericRecyclerViewAdapter<MovieVideoDto> by lazy {
         GenericRecyclerViewAdapter(
             itemLayoutRes = R.layout.item_movie_trailer,
             onBind = this::onBindTrailerItem
+        )
+    }
+
+    private val reviewAdapter: GenericRecyclerViewAdapter<MovieReviewDto> by lazy {
+        GenericRecyclerViewAdapter(
+            itemLayoutRes = R.layout.item_movie_review,
+            onBind = this::onBindReviewItem
         )
     }
 
@@ -38,6 +46,17 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
         super.onViewCreated(view, savedInstanceState)
 
         setupLayout()
+
+        getData()
+    }
+
+    private fun getData() {
+        if (viewModel.uiState.value.movieDetail.id == 0L) {
+            viewModel.onEvent(DetailMovieViewModel.Event.OnGetMovieDetail)
+        }
+        if (viewModel.uiState.value.movieReviews.isEmpty()) {
+            viewModel.onEvent(DetailMovieViewModel.Event.OnGetMovieReviews)
+        }
     }
 
     private fun setupLayout() {
@@ -48,7 +67,12 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
                     LinearLayoutManager.HORIZONTAL,
                     false
                 )
-                adapter = trailerAdapters
+                adapter = trailerAdapter
+            }
+
+            rvMovieDetailReviews.apply {
+                layoutManager = LinearLayoutManager(requireContext())
+                adapter = reviewAdapter
             }
         }
     }
@@ -58,10 +82,25 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
     }
 
     override fun handleState(uiState: DetailMovieUiState) {
+        listenMovieDetailState(uiState)
+        listenMovieReviewsState(uiState)
+    }
+
+    private fun listenMovieDetailState(uiState: DetailMovieUiState) {
         when {
             uiState.isLoading -> showLoading()
             uiState.isSuccess -> showMovieDetail(uiState.movieDetail)
             uiState.isFailed -> handleError(uiState.error)
+        }
+    }
+
+    private fun listenMovieReviewsState(uiState: DetailMovieUiState) {
+        when {
+            uiState.isLoadingReview -> showLoadingReviews(uiState.reviewCurrentPage)
+            uiState.isSuccessGetReviews -> showMovieReviews(
+                uiState.reviewCurrentPage,
+                uiState.movieReviews
+            )
         }
     }
 
@@ -83,7 +122,19 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
         tvMovieDetailOverview.text = data.overview
         tvMovieDetailReleaseDate.text = DateTimeUtil.convertTimeStr(data.releaseDate)
 
-        trailerAdapters.setData(data.youtubeTrailers)
+        trailerAdapter.setData(data.youtubeTrailers)
+    }
+
+    private fun showLoadingReviews(page: Int) {
+
+    }
+
+    private fun showMovieReviews(page: Int, reviews: List<MovieReviewDto>) {
+        if (page <= 1) {
+            reviewAdapter.setData(reviews)
+        } else {
+            reviewAdapter.addData(reviews)
+        }
     }
 
     private fun onBindTrailerItem(
@@ -95,6 +146,18 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
             YoutubeThumbnailLoader(data.key)
         )
         tvItemTrailerName.text = data.name
+    }
+
+    private fun onBindReviewItem(
+        data: MovieReviewDto,
+        view: View
+    ) = ItemMovieReviewBinding.bind(view).apply {
+        ivItemReviewAvatar.loadImageUrl(
+            MovieUtil.getAvatarUrl(data.authorAvatarPath),
+            placeHolder = R.drawable.ic_author_placeholder
+        )
+        tvItemReviewAuthor.text = data.author
+        tvItemReviewContent.text = data.content
     }
 
     /**
@@ -117,7 +180,7 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
             view: YouTubeThumbnailView?,
             result: YouTubeInitializationResult?
         ) {
-            Log.d("DEBUG_MAIN", "fail: $result")
+            showToast("Failed to load thumbnail: ${result?.name}")
         }
     }
 

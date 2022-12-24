@@ -2,7 +2,7 @@ package com.creativijaya.moviegallery.domain.usecases
 
 import com.creativijaya.moviegallery.data.remote.services.MovieService
 import com.creativijaya.moviegallery.domain.models.MovieDetailDto
-import com.creativijaya.moviegallery.domain.toMovieDetailDto
+import com.creativijaya.moviegallery.domain.mapper.toMovieDetailDto
 import com.creativijaya.moviegallery.utils.mapTo
 import com.creativijaya.moviegallery.utils.successOrError
 

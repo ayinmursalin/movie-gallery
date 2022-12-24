@@ -1,4 +1,4 @@
-package com.creativijaya.moviegallery.presentation.main
+package com.creativijaya.moviegallery.presentation.home
 
 import com.creativijaya.moviegallery.domain.models.GenreDto
 import com.creativijaya.moviegallery.domain.models.MovieDto

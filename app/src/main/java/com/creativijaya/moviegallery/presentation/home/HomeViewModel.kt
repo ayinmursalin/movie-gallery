@@ -1,4 +1,4 @@
-package com.creativijaya.moviegallery.presentation.main
+package com.creativijaya.moviegallery.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -57,14 +57,14 @@ class HomeViewModel(
             return
         }
 
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    isLoading = true,
-                    currentPage = it.currentPage + 1
-                )
-            }
+        _uiState.update {
+            it.copy(
+                isLoading = true,
+                currentPage = it.currentPage + 1
+            )
+        }
 
+        viewModelScope.launch {
             try {
                 val genreIds = _uiState.value.selectedGenre?.let { listOf(it.id) }
                 val result = discoverMovieUseCase(

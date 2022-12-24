@@ -3,6 +3,7 @@
     <string name="text_genre">Genre</string>
     <string name="text_popular_movies">Popular Movies</string>
     <string name="text_trailers">Trailers</string>
+    <string name="text_user_reviews">User Reviews</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris

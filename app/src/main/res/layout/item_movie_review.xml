@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_item_review_avatar"
+        android:layout_width="@dimen/user_avatar_size"
+        android:layout_height="@dimen/user_avatar_size"
+        android:layout_margin="@dimen/space_x2"
+        android:background="?colorSecondaryContainer"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/CircleImageView"
+        tools:src="@drawable/ic_author_placeholder" />
+
+    <TextView
+        android:id="@+id/tv_item_review_author"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/space_x2"
+        android:textAppearance="?textAppearanceTitleMedium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_item_review_avatar"
+        app:layout_constraintTop_toTopOf="@id/iv_item_review_avatar"
+        tools:text="User 1" />
+
+    <TextView
+        android:id="@+id/tv_item_review_content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/space_x2"
+        android:layout_marginTop="@dimen/space_x0_half"
+        android:layout_marginBottom="@dimen/space_x0_half"
+        android:ellipsize="end"
+        android:maxLines="4"
+        android:textAppearance="?textAppearanceBodySmall"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_item_review_avatar"
+        app:layout_constraintTop_toBottomOf="@id/tv_item_review_author"
+        tools:text="State-of-the-art special effects, revolutionary underwater cameras, and the resurrection of what is otherwise a mostly forgotten movie theater format can’t hide the fact that _Avatar: The Way of Water_ is basically the same movie as the original with more blue people (some are slightly green now!) that get on your last nerve. The emotion in the film feels forced and the story is like swapping a blue thread for a green one as it threads the same, withered fabric from 2009" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

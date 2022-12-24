@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.creativijaya.moviegallery.presentation.main.HomeFragment"
+        android:name="com.creativijaya.moviegallery.presentation.home.HomeFragment"
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_homeFragment_to_detailMovieFragment"

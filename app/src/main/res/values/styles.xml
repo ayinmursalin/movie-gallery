@@ -8,6 +8,10 @@
         <item name="cornerSizeBottomRight">0dp</item>
     </style>
 
+    <style name="CircleImageView" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">50%</item>
+    </style>
+
     <style name="AppBottomSheet" parent="Widget.Material3.BottomSheet.Modal">
         <item name="backgroundTint">?colorSurface</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.MediumComponent</item>

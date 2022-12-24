@@ -143,6 +143,28 @@
                 tools:listitem="@layout/item_movie_trailer"
                 tools:orientation="horizontal" />
 
+            <TextView
+                android:id="@+id/tv_movie_detail_reviews_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/space_x2"
+                android:layout_marginTop="@dimen/space_x3"
+                android:layout_marginBottom="@dimen/space_x1_half"
+                android:text="@string/text_user_reviews"
+                android:textAppearance="?textAppearanceTitleLarge"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/rv_movie_detail_trailers" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_movie_detail_reviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:padding="@dimen/space_x1"
+                app:layout_constraintTop_toBottomOf="@id/tv_movie_detail_reviews_label"
+                tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_movie_review"
+                tools:orientation="vertical" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

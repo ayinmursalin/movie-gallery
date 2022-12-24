@@ -3,6 +3,7 @@ package com.creativijaya.moviegallery.data.remote.services
 import com.creativijaya.moviegallery.data.remote.responses.BasePaginationResponse
 import com.creativijaya.moviegallery.data.remote.responses.GetGenreResponse
 import com.creativijaya.moviegallery.data.remote.responses.MovieResponse
+import com.creativijaya.moviegallery.data.remote.responses.MovieReviewResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -24,5 +25,11 @@ interface MovieService {
         @Path("movie_id") movieId: Long,
         @Query("append_to_response") appendToResponse: String = "videos"
     ): MovieResponse
+
+    @GET("movie/{movie_id}/reviews")
+    suspend fun getMovieReviews(
+        @Path("movie_id") movieId: Long,
+        @Query("page") page: Int = 1,
+    ): BasePaginationResponse<MovieReviewResponse>
 
 }

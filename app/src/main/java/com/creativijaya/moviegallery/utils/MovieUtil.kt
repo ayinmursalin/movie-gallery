@@ -14,6 +14,16 @@ object MovieUtil {
     }
 
     fun getImageUrl(path: String): String {
+        if (path.isEmpty()) return ""
+
+        return BuildConfig.IMAGE_BASE_URL + path
+    }
+
+    fun getAvatarUrl(path: String): String {
+        if (path.isEmpty()) return ""
+
+        if (path.startsWith("/https")) return path.replaceFirst("/", "")
+
         return BuildConfig.IMAGE_BASE_URL + path
     }
 

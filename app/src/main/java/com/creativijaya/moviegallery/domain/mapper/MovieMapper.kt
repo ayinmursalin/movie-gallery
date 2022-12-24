@@ -1,11 +1,13 @@
-package com.creativijaya.moviegallery.domain
+package com.creativijaya.moviegallery.domain.mapper
 
 import com.creativijaya.moviegallery.data.remote.responses.GenreResponse
 import com.creativijaya.moviegallery.data.remote.responses.MovieResponse
+import com.creativijaya.moviegallery.data.remote.responses.MovieReviewResponse
 import com.creativijaya.moviegallery.data.remote.responses.MovieVideoResponse
 import com.creativijaya.moviegallery.domain.models.GenreDto
 import com.creativijaya.moviegallery.domain.models.MovieDetailDto
 import com.creativijaya.moviegallery.domain.models.MovieDto
+import com.creativijaya.moviegallery.domain.models.MovieReviewDto
 import com.creativijaya.moviegallery.domain.models.MovieVideoDto
 import com.creativijaya.moviegallery.domain.models.enums.MovieVideoSiteType
 import com.creativijaya.moviegallery.domain.models.enums.MovieVideoType
@@ -54,4 +56,13 @@ fun MovieResponse.toMovieDetailDto() = MovieDetailDto(
     voteCount = this.voteCount.orZero(),
     genres = this.genres?.map(GenreResponse::toGenreDto).orEmpty(),
     videos = this.videos?.results?.map(MovieVideoResponse::toMovieVideoDto).orEmpty()
+)
+
+fun MovieReviewResponse.toMovieReviewDto() = MovieReviewDto(
+    id = this.id.orEmpty(),
+    content = this.content.orEmpty(),
+    author = this.author.orEmpty(),
+    authorAvatarPath = this.authorDetails?.avatarPath.orEmpty(),
+    url = this.url.orEmpty(),
+    createdAt = this.createdAt.orEmpty()
 )

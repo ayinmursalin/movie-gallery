@@ -1,4 +1,4 @@
-package com.creativijaya.moviegallery.presentation.main
+package com.creativijaya.moviegallery.presentation.home
 
 import android.content.Context
 import android.os.Bundle
