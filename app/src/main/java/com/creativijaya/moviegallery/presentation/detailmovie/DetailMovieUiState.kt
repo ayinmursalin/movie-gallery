@@ -11,6 +11,7 @@ data class DetailMovieUiState(
     val reviewTotalPages: Int = 1,
     val movieReviews: List<MovieReviewDto> = emptyList(),
     val isLoadingReview: Boolean = false,
+    val errorReview: Exception? = null,
     override val isLoading: Boolean = false,
     override val error: Exception? = null
 ) : BaseUiState {
@@ -18,7 +19,7 @@ data class DetailMovieUiState(
         get() = super.isSuccess && movieDetail.id != 0L
 
     val isSuccessGetReviews: Boolean
-        get() = isLoadingReview.not() && movieReviews.isNotEmpty()
+        get() = isLoadingReview.not() && errorReview == null
 
     fun resetState() = this.copy(
         isLoading = false,

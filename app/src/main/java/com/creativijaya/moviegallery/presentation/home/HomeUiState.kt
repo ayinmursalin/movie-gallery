@@ -10,9 +10,11 @@ data class HomeUiState(
     val movieList: List<MovieDto> = emptyList(),
     val genreList: List<GenreDto> = emptyList(),
     val selectedGenre: GenreDto? = null,
+    val hasAddMovieList: Boolean = false,
     override val isLoading: Boolean = false,
     override val error: Exception? = null
 ) : BaseUiState {
+
     fun resetMovieList() = this.copy(
         isLoading = false,
         currentPage = 0,

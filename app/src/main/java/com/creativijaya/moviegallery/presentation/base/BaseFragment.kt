@@ -5,9 +5,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.creativijaya.moviegallery.data.remote.exceptions.BadRequestException
 import com.creativijaya.moviegallery.data.remote.exceptions.InternalServerException
 import com.creativijaya.moviegallery.data.remote.exceptions.MethodNotAllowedException
@@ -15,8 +13,8 @@ import com.creativijaya.moviegallery.data.remote.exceptions.NotFoundException
 import com.creativijaya.moviegallery.data.remote.exceptions.TooManyRequestException
 import com.creativijaya.moviegallery.data.remote.exceptions.UnauthorizedException
 import com.creativijaya.moviegallery.data.remote.exceptions.UnprocessableEntityException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 abstract class BaseFragment<T : BaseUiState>(
     @LayoutRes layoutRes: Int
@@ -26,6 +24,8 @@ abstract class BaseFragment<T : BaseUiState>(
 
     abstract fun handleState(uiState: T)
 
+    private var job: Job? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -33,11 +33,15 @@ abstract class BaseFragment<T : BaseUiState>(
     }
 
     private fun subscribeState() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                uiState().collect(::handleState)
-            }
+        job = lifecycleScope.launchWhenStarted {
+            uiState().collect(::handleState)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        job?.cancel()
     }
 
     protected fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {

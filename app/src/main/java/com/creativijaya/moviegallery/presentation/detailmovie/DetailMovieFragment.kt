@@ -2,6 +2,8 @@ package com.creativijaya.moviegallery.presentation.detailmovie
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.widget.NestedScrollView.OnScrollChangeListener
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.creativijaya.moviegallery.BuildConfig
 import com.creativijaya.moviegallery.R
@@ -16,12 +18,15 @@ import com.creativijaya.moviegallery.utils.DateTimeUtil
 import com.creativijaya.moviegallery.utils.GenericRecyclerViewAdapter
 import com.creativijaya.moviegallery.utils.MovieUtil
 import com.creativijaya.moviegallery.utils.loadImageUrl
+import com.creativijaya.moviegallery.utils.toGone
+import com.creativijaya.moviegallery.utils.toVisible
 import com.creativijaya.moviegallery.utils.viewBinding
 import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubeThumbnailLoader
 import com.google.android.youtube.player.YouTubeThumbnailView
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.viewmodel.ext.android.viewModel
+
 
 class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_detail_movie) {
 
@@ -61,6 +66,10 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
 
     private fun setupLayout() {
         with(binding) {
+            toolbarMovieDetail.setNavigationOnClickListener {
+                findNavController().popBackStack()
+            }
+
             rvMovieDetailTrailers.apply {
                 layoutManager = LinearLayoutManager(
                     requireContext(),
@@ -74,6 +83,27 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
                 layoutManager = LinearLayoutManager(requireContext())
                 adapter = reviewAdapter
             }
+
+            scrollviewMovieDetail
+                .setOnScrollChangeListener(OnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
+                    if (v.getChildAt(v.childCount - 1) != null) {
+                        if (scrollY > oldScrollY) {
+                            if (scrollY >= v.getChildAt(v.childCount - 1).measuredHeight - v.measuredHeight) {
+                                //code to fetch more data for endless scrolling
+                                viewModel.onEvent(DetailMovieViewModel.Event.OnGetMovieReviews)
+                            }
+                        }
+                    }
+                })
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        with(binding) {
+            rvMovieDetailTrailers.layoutManager = null
+            rvMovieDetailReviews.layoutManager = null
         }
     }
 
@@ -105,15 +135,11 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
     }
 
     private fun showLoading() {
-
     }
 
     private fun showMovieDetail(data: MovieDetailDto) = with(binding) {
+        ctlMovieDetail.title = data.title
         ivMovieDetailBackdrop.loadImageUrl(MovieUtil.getImageUrl(data.backdropPath))
-        tvMovieDetailTitle.apply {
-            isSelected = true
-            text = data.title
-        }
         rbMovieDetailVote.rating = data.voteAverage.toFloat() / 2f
         tvMovieDetailVotersCount.text = getString(
             R.string.format_voters_count,
@@ -122,17 +148,44 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
         tvMovieDetailOverview.text = data.overview
         tvMovieDetailReleaseDate.text = DateTimeUtil.convertTimeStr(data.releaseDate)
 
-        trailerAdapter.setData(data.youtubeTrailers)
+        if (data.youtubeTrailers.isEmpty()) {
+            rvMovieDetailTrailers.toGone()
+            tvMovieDetailEmptyTrailers.toVisible()
+        } else {
+            tvMovieDetailEmptyTrailers.toGone()
+            rvMovieDetailTrailers.toVisible()
+            trailerAdapter.setData(data.youtubeTrailers)
+        }
     }
 
     private fun showLoadingReviews(page: Int) {
-
+        if (page > 1) {
+            binding.rvMovieDetailReviews.post {
+                reviewAdapter.showLoading()
+            }
+        }
     }
 
-    private fun showMovieReviews(page: Int, reviews: List<MovieReviewDto>) {
+    private fun showMovieReviews(page: Int, reviews: List<MovieReviewDto>) = with(binding) {
         if (page <= 1) {
-            reviewAdapter.setData(reviews)
+            if (reviews.isEmpty()) {
+                rvMovieDetailReviews.toGone()
+                tvMovieDetailEmptyReviews.toVisible()
+            } else {
+                tvMovieDetailEmptyReviews.toGone()
+                rvMovieDetailReviews.toVisible()
+
+                reviewAdapter.setData(reviews)
+            }
         } else {
+            rvMovieDetailReviews.post {
+                reviewAdapter.hideLoading()
+            }
+
+            if (reviews.isEmpty()) {
+                showToast("No more reviews")
+            }
+
             reviewAdapter.addData(reviews)
         }
     }

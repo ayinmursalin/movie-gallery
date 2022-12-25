@@ -1,7 +1,9 @@
 package com.creativijaya.moviegallery.presentation.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -102,7 +104,10 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
 
         when {
             uiState.isLoading -> showLoading(uiState.currentPage)
-            uiState.isSuccess -> showMovieList(uiState.currentPage, uiState.movieList)
+            uiState.isSuccess && uiState.hasAddMovieList.not() -> showMovieList(
+                uiState.currentPage,
+                uiState.movieList
+            )
             uiState.isFailed -> handleError(uiState.currentPage, uiState.error)
         }
     }
@@ -116,6 +121,7 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
     }
 
     private fun showLoading(page: Int) = with(binding) {
+        Log.d("DEBUG_MAIN", "showLoading $page")
         if (page <= 1) {
             rvHomeMovies.toGone()
             cpiHomeIndicator.toVisible()
@@ -128,6 +134,11 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
     }
 
     private fun showMovieList(page: Int, movieList: List<MovieDto>) = with(binding) {
+        MutableLiveData("").observe(this@HomeFragment) {
+//            it?.getEve
+        }
+
+        Log.d("DEBUG_MAIN", "Show $page - ${movieList.size}")
         if (page <= 1) {
             cpiHomeIndicator.toGone()
             rvHomeMovies.toVisible()
@@ -141,6 +152,8 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
 
             movieAdapter.addData(movieList)
         }
+
+        viewModel.onEvent(Event.OnMovieListAdded)
     }
 
     private fun handleError(page: Int, exception: Exception?) {

@@ -19,18 +19,21 @@ class HomeViewModel(
     sealed class Event {
         object OnGetGenreList : Event()
         object OnDiscoverMovieList : Event()
+        object OnMovieListAdded : Event()
         data class OnFilterApplied(val genre: GenreDto) : Event()
     }
 
     private val _uiState = MutableStateFlow(HomeUiState())
 
     val uiState: StateFlow<HomeUiState>
-        get() = _uiState.asStateFlow()
+        get() = _uiState
+            .asStateFlow()
 
     fun onEvent(event: Event) {
         when (event) {
             Event.OnGetGenreList -> handleOnGetGenreList()
             Event.OnDiscoverMovieList -> handleOnDiscoverMovieList()
+            Event.OnMovieListAdded -> handleOnMovieListAdded()
             is Event.OnFilterApplied -> handleOnFilterApplied(event.genre)
         }
     }
@@ -78,7 +81,8 @@ class HomeViewModel(
                         error = null,
                         movieList = result.results,
                         currentPage = result.page,
-                        totalPages = result.totalPages
+                        totalPages = result.totalPages,
+                        hasAddMovieList = false
                     )
                 }
             } catch (e: Exception) {
@@ -89,6 +93,12 @@ class HomeViewModel(
                     )
                 }
             }
+        }
+    }
+
+    private fun handleOnMovieListAdded() {
+        _uiState.update {
+            it.copy(hasAddMovieList = true)
         }
     }
 

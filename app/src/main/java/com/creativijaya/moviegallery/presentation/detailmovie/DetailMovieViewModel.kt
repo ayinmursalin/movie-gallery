@@ -88,13 +88,17 @@ class DetailMovieViewModel(
                 _uiState.update {
                     it.copy(
                         isLoadingReview = false,
-                        movieReviews = result,
+                        movieReviews = result.results,
+                        reviewTotalPages = result.totalPages,
                         error = null
                     )
                 }
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(error = e)
+                    it.copy(
+                        isLoadingReview = false,
+                        errorReview = e
+                    )
                 }
             }
         }
