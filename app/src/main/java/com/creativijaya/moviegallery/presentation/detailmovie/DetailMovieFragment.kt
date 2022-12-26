@@ -36,7 +36,8 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
     private val trailerAdapter: GenericRecyclerViewAdapter<MovieVideoDto> by lazy {
         GenericRecyclerViewAdapter(
             itemLayoutRes = R.layout.item_movie_trailer,
-            onBind = this::onBindTrailerItem
+            onBind = this::onBindTrailerItem,
+            onClickListener = this::onTrailerItemClickListener
         )
     }
 
@@ -199,6 +200,13 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
             YoutubeThumbnailLoader(data.key)
         )
         tvItemTrailerName.text = data.name
+    }
+
+    private fun onTrailerItemClickListener(data: MovieVideoDto, position: Int) {
+        val direction = DetailMovieFragmentDirections
+            .actionDetailMovieFragmentToTrailerPlayerActivity(data.key)
+
+        findNavController().navigate(direction)
     }
 
     private fun onBindReviewItem(

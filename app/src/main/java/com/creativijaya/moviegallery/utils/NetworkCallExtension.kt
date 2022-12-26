@@ -12,12 +12,8 @@ import com.google.gson.Gson
 import retrofit2.HttpException
 
 
-inline fun <reified T> String.safeGenerateModel(): T? {
-    return try {
-        Gson().fromJson(this, T::class.java)
-    } catch (e: Exception) {
-        null
-    }
+inline fun <reified T> String.safeGenerateModel(): T? = callOrNull {
+    Gson().fromJson(this, T::class.java)
 }
 
 inline fun <T> successOrError(block: () -> T): T {
