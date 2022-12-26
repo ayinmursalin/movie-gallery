@@ -22,6 +22,7 @@ import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,6 +83,11 @@ class HomeViewModelTest {
     private val sortedType = DiscoverMovieSortedType.POPULARITY
     private val orderType = DiscoverMovieOrderType.DESC
 
+    @Before
+    fun setup() {
+        movieService = mock {  }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun onDiscoverMovieList_SuccessGetMovieList() = runTest {
@@ -103,7 +109,7 @@ class HomeViewModelTest {
         // assert - success get movie list
         advanceUntilIdle()
         Assert.assertEquals(
-            movieListResponse.map { it.toMovieDto() },
+            movieListResponse.map(MovieResponse::toMovieDto),
             viewModel.uiState.value.movieList
         )
     }
@@ -151,7 +157,7 @@ class HomeViewModelTest {
         // assert - success get genre list
         advanceUntilIdle()
         Assert.assertEquals(
-            genreListResponse.map { it.toGenreDto() },
+            genreListResponse.map(GenreResponse::toGenreDto),
             viewModel.uiState.value.genreList
         )
     }
@@ -159,8 +165,6 @@ class HomeViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun onFilterApplied_SelectedGenreNotNull() = runTest {
-        movieService = mock { }
-
         // assert - selected genre is null (first time open)
         Assert.assertEquals(
             null,
@@ -199,10 +203,10 @@ class HomeViewModelTest {
         // apply filter with selected genre
         viewModel.onEvent(HomeViewModel.Event.OnFilterApplied(selectedGenre))
 
-        // assert - get movie list with only selected genre
+        // assert - success get movie list with only selected genre
         advanceUntilIdle()
         Assert.assertEquals(
-            filteredMovieList.map { it.toMovieDto() },
+            filteredMovieList.map(MovieResponse::toMovieDto),
             viewModel.uiState.value.movieList
         )
     }

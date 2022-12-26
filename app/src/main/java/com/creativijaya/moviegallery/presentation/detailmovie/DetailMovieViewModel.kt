@@ -42,11 +42,11 @@ class DetailMovieViewModel(
     }
 
     private fun handleOnGetMovieDetail() {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(isLoading = true)
-            }
+        _uiState.update {
+            it.copy(isLoading = true)
+        }
 
+        viewModelScope.launch {
             try {
                 val result = getMovieDetailUseCase(movieId = _uiState.value.movieId)
 
