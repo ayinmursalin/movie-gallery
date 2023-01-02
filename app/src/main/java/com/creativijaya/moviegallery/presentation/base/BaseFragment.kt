@@ -1,11 +1,8 @@
 package com.creativijaya.moviegallery.presentation.base
 
-import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.creativijaya.moviegallery.data.remote.exceptions.BadRequestException
 import com.creativijaya.moviegallery.data.remote.exceptions.InternalServerException
 import com.creativijaya.moviegallery.data.remote.exceptions.MethodNotAllowedException
@@ -13,36 +10,10 @@ import com.creativijaya.moviegallery.data.remote.exceptions.NotFoundException
 import com.creativijaya.moviegallery.data.remote.exceptions.TooManyRequestException
 import com.creativijaya.moviegallery.data.remote.exceptions.UnauthorizedException
 import com.creativijaya.moviegallery.data.remote.exceptions.UnprocessableEntityException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.StateFlow
 
-abstract class BaseFragment<T : BaseUiState>(
+abstract class BaseFragment(
     @LayoutRes layoutRes: Int
 ) : Fragment(layoutRes) {
-
-    abstract fun uiState(): StateFlow<T>
-
-    abstract fun handleState(uiState: T)
-
-    private var job: Job? = null
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        subscribeState()
-    }
-
-    private fun subscribeState() {
-        job = lifecycleScope.launchWhenStarted {
-            uiState().collect(::handleState)
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        job?.cancel()
-    }
 
     protected fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
         Toast.makeText(requireContext(), message, duration).show()

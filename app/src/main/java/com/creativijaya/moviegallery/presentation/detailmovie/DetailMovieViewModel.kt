@@ -42,66 +42,66 @@ class DetailMovieViewModel(
     }
 
     private fun handleOnGetMovieDetail() {
-        _uiState.update {
-            it.copy(isLoading = true)
-        }
-
-        viewModelScope.launch {
-            try {
-                val result = getMovieDetailUseCase(movieId = _uiState.value.movieId)
-
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        movieDetail = result,
-                        error = null
-                    )
-                }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(error = e)
-                }
-            }
-        }
+//        _uiState.update {
+//            it.copy(isLoading = true)
+//        }
+//
+//        viewModelScope.launch {
+//            try {
+//                val result = getMovieDetailUseCase(movieId = _uiState.value.movieId)
+//
+//                _uiState.update {
+//                    it.copy(
+//                        isLoading = false,
+//                        movieDetail = result,
+//                        error = null
+//                    )
+//                }
+//            } catch (e: Exception) {
+//                _uiState.update {
+//                    it.copy(error = e)
+//                }
+//            }
+//        }
     }
 
     private fun handleOnGetMovieReviews() {
-        val hasMoreData = _uiState.value.reviewCurrentPage < _uiState.value.reviewTotalPages
-        if (_uiState.value.isLoadingReview || hasMoreData.not()) {
-            return
-        }
-
-        _uiState.update {
-            it.copy(
-                isLoadingReview = true,
-                reviewCurrentPage = it.reviewCurrentPage + 1
-            )
-        }
-
-        viewModelScope.launch {
-            try {
-                val result = getMovieReviewsUseCase(
-                    movieId = _uiState.value.movieId,
-                    page = _uiState.value.reviewCurrentPage
-                )
-
-                _uiState.update {
-                    it.copy(
-                        isLoadingReview = false,
-                        movieReviews = result.results,
-                        reviewTotalPages = result.totalPages,
-                        error = null
-                    )
-                }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isLoadingReview = false,
-                        errorReview = e
-                    )
-                }
-            }
-        }
+//        val hasMoreData = _uiState.value.reviewCurrentPage < _uiState.value.reviewTotalPages
+//        if (_uiState.value.isLoadingReview || hasMoreData.not()) {
+//            return
+//        }
+//
+//        _uiState.update {
+//            it.copy(
+//                isLoadingReview = true,
+//                reviewCurrentPage = it.reviewCurrentPage + 1
+//            )
+//        }
+//
+//        viewModelScope.launch {
+//            try {
+//                val result = getMovieReviewsUseCase(
+//                    movieId = _uiState.value.movieId,
+//                    page = _uiState.value.reviewCurrentPage
+//                )
+//
+//                _uiState.update {
+//                    it.copy(
+//                        isLoadingReview = false,
+//                        movieReviews = result.results,
+//                        reviewTotalPages = result.totalPages,
+//                        error = null
+//                    )
+//                }
+//            } catch (e: Exception) {
+//                _uiState.update {
+//                    it.copy(
+//                        isLoadingReview = false,
+//                        errorReview = e
+//                    )
+//                }
+//            }
+//        }
     }
 
 }

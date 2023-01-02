@@ -4,17 +4,18 @@ import com.creativijaya.moviegallery.data.remote.responses.GenreResponse
 import com.creativijaya.moviegallery.data.remote.services.MovieService
 import com.creativijaya.moviegallery.domain.models.GenreDto
 import com.creativijaya.moviegallery.domain.mapper.toGenreDto
+import com.creativijaya.moviegallery.utils.Async
 import com.creativijaya.moviegallery.utils.mapTo
 import com.creativijaya.moviegallery.utils.successOrError
 
 class GetGenreListUseCase(
     private val service: MovieService
 ) {
-    suspend operator fun invoke(): List<GenreDto> {
+    suspend operator fun invoke(): Async<List<GenreDto>> {
         return successOrError {
             service.getGenreList()
         }.mapTo {
-            it.genres?.map(GenreResponse::toGenreDto).orEmpty()
+            it.invoke().genres?.map(GenreResponse::toGenreDto).orEmpty()
         }
     }
 }

@@ -7,6 +7,7 @@ import com.creativijaya.moviegallery.domain.models.MovieDto
 import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieOrderType
 import com.creativijaya.moviegallery.domain.models.enums.DiscoverMovieSortedType
 import com.creativijaya.moviegallery.domain.mapper.toMovieDto
+import com.creativijaya.moviegallery.utils.Async
 import com.creativijaya.moviegallery.utils.MovieUtil
 import com.creativijaya.moviegallery.utils.mapTo
 import com.creativijaya.moviegallery.utils.orZero
@@ -20,7 +21,7 @@ class DiscoverMovieUseCase(
         sortedType: DiscoverMovieSortedType = DiscoverMovieSortedType.POPULARITY,
         orderType: DiscoverMovieOrderType = DiscoverMovieOrderType.DESC,
         genreIds: List<Int>? = null
-    ): BasePaginationDto<MovieDto> {
+    ): Async<BasePaginationDto<MovieDto>> {
         return successOrError {
             val sortedBy = MovieUtil.getSortedBy(sortedType, orderType)
             val withGenreIds = genreIds?.joinToString(",")
@@ -32,10 +33,10 @@ class DiscoverMovieUseCase(
             )
         }.mapTo {
             BasePaginationDto(
-                page = it.page.orZero(),
-                totalPages = it.totalPages.orZero(),
-                totalResults = it.totalResults.orZero(),
-                results = it.results?.map(MovieResponse::toMovieDto).orEmpty()
+                page = it.invoke().page.orZero(),
+                totalPages = it.invoke().totalPages.orZero(),
+                totalResults = it.invoke().totalResults.orZero(),
+                results = it.invoke().results?.map(MovieResponse::toMovieDto).orEmpty()
             )
         }
     }

@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_detail_movie) {
+class DetailMovieFragment : BaseFragment(R.layout.fragment_detail_movie) {
 
     private val binding: FragmentDetailMovieBinding by viewBinding()
     private val viewModel: DetailMovieViewModel by viewModel()
@@ -108,14 +108,14 @@ class DetailMovieFragment : BaseFragment<DetailMovieUiState>(R.layout.fragment_d
         }
     }
 
-    override fun uiState(): StateFlow<DetailMovieUiState> {
-        return viewModel.uiState
-    }
-
-    override fun handleState(uiState: DetailMovieUiState) {
-        listenMovieDetailState(uiState)
-        listenMovieReviewsState(uiState)
-    }
+//    override fun uiState(): StateFlow<DetailMovieUiState> {
+//        return viewModel.uiState
+//    }
+//
+//    override fun handleState(uiState: DetailMovieUiState) {
+//        listenMovieDetailState(uiState)
+//        listenMovieReviewsState(uiState)
+//    }
 
     private fun listenMovieDetailState(uiState: DetailMovieUiState) {
         when {

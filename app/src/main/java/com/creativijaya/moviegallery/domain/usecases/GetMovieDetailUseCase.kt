@@ -3,17 +3,18 @@ package com.creativijaya.moviegallery.domain.usecases
 import com.creativijaya.moviegallery.data.remote.services.MovieService
 import com.creativijaya.moviegallery.domain.models.MovieDetailDto
 import com.creativijaya.moviegallery.domain.mapper.toMovieDetailDto
+import com.creativijaya.moviegallery.utils.Async
 import com.creativijaya.moviegallery.utils.mapTo
 import com.creativijaya.moviegallery.utils.successOrError
 
 class GetMovieDetailUseCase(
     private val service: MovieService
 ) {
-    suspend operator fun invoke(movieId: Long): MovieDetailDto {
+    suspend operator fun invoke(movieId: Long): Async<MovieDetailDto> {
         return successOrError {
             service.getMovieDetail(movieId)
         }.mapTo {
-            it.toMovieDetailDto()
+            it.invoke().toMovieDetailDto()
         }
     }
 }

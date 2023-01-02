@@ -1,7 +1,9 @@
 package com.creativijaya.moviegallery.presentation.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -11,7 +13,6 @@ import com.creativijaya.moviegallery.databinding.ItemMovieBinding
 import com.creativijaya.moviegallery.domain.models.GenreDto
 import com.creativijaya.moviegallery.domain.models.MovieDto
 import com.creativijaya.moviegallery.presentation.base.BaseFragment
-import com.creativijaya.moviegallery.presentation.home.HomeViewModel.Event
 import com.creativijaya.moviegallery.utils.DateTimeUtil
 import com.creativijaya.moviegallery.utils.EndlessScrollListener
 import com.creativijaya.moviegallery.utils.GenericRecyclerViewAdapter
@@ -20,10 +21,9 @@ import com.creativijaya.moviegallery.utils.loadImageUrl
 import com.creativijaya.moviegallery.utils.toGone
 import com.creativijaya.moviegallery.utils.toVisible
 import com.creativijaya.moviegallery.utils.viewBinding
-import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
+class HomeFragment : BaseFragment(R.layout.fragment_home),
     HomeFilterDialogListener {
 
     private val binding: FragmentHomeBinding by viewBinding()
@@ -44,7 +44,7 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
     private val endlessScrollListener: EndlessScrollListener by lazy {
         object : EndlessScrollListener(gridLayoutManager) {
             override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
-                viewModel.onEvent(Event.OnDiscoverMovieList)
+                viewModel.onLoadMore()
             }
         }
     }
@@ -56,13 +56,24 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
 
         setupLayout()
 
-        getData()
+        subscribeState()
     }
 
-    private fun getData() {
-        if (viewModel.uiState.value.movieList.isEmpty()) {
-            viewModel.onEvent(Event.OnGetGenreList)
-            viewModel.onEvent(Event.OnDiscoverMovieList)
+    private fun subscribeState() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.selectedGenre.collect { selectedGenre ->
+                showPageTitle(selectedGenre)
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.uiState.collect { state ->
+                if (state.isLoading) {
+                    showLoading()
+                } else {
+                    showMovieList(state.movieList)
+                }
+            }
         }
     }
 
@@ -75,11 +86,11 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
             }
 
             fabHomeFilter.setOnClickListener {
-                filterDialog = HomeFilterDialog.newInstance(
-                    viewModel.uiState.value.genreList,
-                    viewModel.uiState.value.selectedGenre
-                )
-                filterDialog?.show(childFragmentManager, TAG_FILTER_DIALOG)
+//                filterDialog = HomeFilterDialog.newInstance(
+//                    viewModel.uiState.value.genreList,
+//                    viewModel.uiState.value.selectedGenre
+//                )
+//                filterDialog?.show(childFragmentManager, TAG_FILTER_DIALOG)
             }
         }
     }
@@ -93,23 +104,6 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
         filterDialog = null
     }
 
-    override fun uiState(): StateFlow<HomeUiState> {
-        return viewModel.uiState
-    }
-
-    override fun handleState(uiState: HomeUiState) {
-        showPageTitle(uiState.selectedGenre)
-
-        when {
-            uiState.isLoading -> showLoading(uiState.currentPage)
-            uiState.isSuccess && uiState.hasAddMovieList.not() -> showMovieList(
-                uiState.currentPage,
-                uiState.movieList
-            )
-            uiState.isFailed -> handleError(uiState.currentPage, uiState.error)
-        }
-    }
-
     private fun showPageTitle(selectedGenre: GenreDto?) = with(binding) {
         tvHomeTitle.text = if (selectedGenre == null) {
             getString(R.string.text_popular_movies)
@@ -118,34 +112,18 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
         }
     }
 
-    private fun showLoading(page: Int) = with(binding) {
-        if (page <= 1) {
-            rvHomeMovies.toGone()
-            cpiHomeIndicator.toVisible()
-        } else {
-            endlessScrollListener.showLoading()
-            binding.rvHomeMovies.post {
-                movieAdapter.showLoading()
-            }
-        }
+    private fun showLoading() = with(binding) {
+        rvHomeMovies.toGone()
+        cpiHomeIndicator.toVisible()
     }
 
-    private fun showMovieList(page: Int, movieList: List<MovieDto>) = with(binding) {
-        if (page <= 1) {
-            cpiHomeIndicator.toGone()
-            rvHomeMovies.toVisible()
+    private fun showMovieList(movieList: List<MovieDto?>) = with(binding) {
+        cpiHomeIndicator.toGone()
+        rvHomeMovies.toVisible()
 
-            movieAdapter.setData(movieList)
-        } else {
-            endlessScrollListener.hideLoading()
-            binding.rvHomeMovies.post {
-                movieAdapter.hideLoading()
-            }
+        Log.d("DEBUG_MAIN", "showMovieList: ${movieList.size}")
 
-            movieAdapter.addData(movieList)
-        }
-
-        viewModel.onEvent(Event.OnMovieListAdded)
+        movieAdapter.setData(movieList)
     }
 
     private fun handleError(page: Int, exception: Exception?) {
@@ -184,7 +162,7 @@ class HomeFragment : BaseFragment<HomeUiState>(R.layout.fragment_home),
     }
 
     override fun onFilterApplied(genre: GenreDto) {
-        viewModel.onEvent(Event.OnFilterApplied(genre))
+//        viewModel.onEvent(Event.OnFilterApplied(genre))
     }
 
     companion object {
